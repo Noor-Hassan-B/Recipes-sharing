@@ -1,0 +1,12 @@
+services:
+  # Database Seeder / Test Cron / Web Service
+  - type: web
+    name: recipe-sharing-db
+    env: node
+    buildCommand: npm install
+    startCommand: node testConnection.js
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: NODE_ENV
+        value: production

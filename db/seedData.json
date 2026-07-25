@@ -1,0 +1,90 @@
+{
+  "users": [
+    {
+      "name": "System Administrator",
+      "email": "admin@recipe.com",
+      "role": "admin",
+      "profileImage": "/uploads/default-avatar.png"
+    },
+    {
+      "name": "Chef Mario",
+      "email": "mario@recipes.com",
+      "role": "user",
+      "profileImage": "/uploads/default-avatar.png"
+    }
+  ],
+  "categories": [
+    "Italian",
+    "Mexican",
+    "Indian",
+    "Chinese",
+    "Desserts",
+    "Healthy & Vegan",
+    "Breakfast",
+    "Beverages"
+  ],
+  "recipes": [
+    {
+      "title": "Classic Margherita Pizza",
+      "description": "Authentic Neapolitan pizza with fresh basil, mozzarella, and rich tomato sauce.",
+      "ingredients": [
+        "2 1/2 cups All-purpose flour",
+        "1 tsp Active dry yeast",
+        "1 cup Warm water",
+        "1/2 cup Fresh tomato sauce",
+        "200g Fresh Mozzarella cheese",
+        "Fresh basil leaves",
+        "2 tbsp Olive oil",
+        "Salt to taste"
+      ],
+      "instructions": "1. Dissolve yeast in warm water and combine with flour and salt to form dough.\n2. Let dough rise for 1 hour.\n3. Roll out dough, spread tomato sauce, and layer fresh mozzarella slices.\n4. Bake at 240°C (460°F) for 12-15 minutes until crust is golden.\n5. Top with fresh basil and drizzle olive oil before serving.",
+      "category": "Italian",
+      "difficulty": "Medium",
+      "preparationTime": 30,
+      "image": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 4.8,
+      "likes": 24
+    },
+    {
+      "title": "Creamy Butter Chicken",
+      "description": "Rich and velvety North Indian curry made with tender chicken pieces in a spiced tomato-butter sauce.",
+      "ingredients": [
+        "500g Boneless chicken thighs",
+        "1 cup Yogurt",
+        "2 tbsp Ginger-garlic paste",
+        "1 tsp Garam masala",
+        "1 cup Tomato puree",
+        "1/2 cup Heavy cream",
+        "3 tbsp Butter",
+        "Fresh coriander"
+      ],
+      "instructions": "1. Marinate chicken with yogurt and spices for at least 30 mins.\n2. Sear chicken pieces in a hot skillet until charred.\n3. Prepare gravy by cooking butter, garlic, tomato puree, and spices.\n4. Stir in cream and cooked chicken. Simmer for 10 mins.\n5. Garnish with fresh coriander and serve hot with naan.",
+      "category": "Indian",
+      "difficulty": "Medium",
+      "preparationTime": 45,
+      "image": "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 4.9,
+      "likes": 42
+    },
+    {
+      "title": "Avocado & Quinoa Power Bowl",
+      "description": "Nutritious and vibrant vegan bowl packed with superfoods, roasted chickpeas, and tahini dressing.",
+      "ingredients": [
+        "1 cup Cooked quinoa",
+        "1 Ripe avocado (sliced)",
+        "1 cup Roasted chickpeas",
+        "1/2 cup Cherry tomatoes",
+        "1 cup Fresh spinach",
+        "2 tbsp Tahini",
+        "1 tbsp Lemon juice"
+      ],
+      "instructions": "1. Arrange cooked quinoa and fresh spinach in a bowl.\n2. Top with sliced avocado, roasted chickpeas, and halved cherry tomatoes.\n3. Whisk tahini, lemon juice, and 1 tbsp water to make dressing.\n4. Drizzle dressing over the bowl and serve chilled.",
+      "category": "Healthy & Vegan",
+      "difficulty": "Easy",
+      "preparationTime": 15,
+      "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 4.7,
+      "likes": 18
+    }
+  ]
+}
