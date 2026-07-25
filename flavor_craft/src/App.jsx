@@ -1,10 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AddRecipe from "./pages/member2/AddRecipe.jsx";
-import AboutUs from "./pages/member2/AboutUs.jsx";
-import Home from "./pages/member2/Home.jsx";
-import Login from "./pages/member2/Login.jsx";
-import Recipes from "./pages/member2/Recipes.jsx";
-import Signup from "./pages/member2/Signup.jsx";
+import AddRecipe from "./pages/AddRecipe.jsx";
+import AboutUs from "./pages/AboutUs.jsx";
+import Home from "./pages/Home.jsx";
+import Login from "./pages/Login.jsx";
+import Recipes from "./pages/Recipes.jsx";
+import Signup from "./pages/Signup.jsx";
 
 function App() {
   return (

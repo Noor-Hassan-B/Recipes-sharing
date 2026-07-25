@@ -1,0 +1,332 @@
+/* Navbar Header */
+.navbar-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(246, 244, 209, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(24, 54, 44, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-header.scrolled {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 4px 20px rgba(24, 54, 44, 0.08);
+  border-bottom-color: rgba(24, 54, 44, 0.12);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* Brand Logo */
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #18362c;
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(1.02);
+}
+
+.brand-icon {
+  font-size: 26px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.brand-highlight {
+  color: #e07a5f;
+}
+
+/* Desktop Nav Links */
+.desktop-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav-link {
+  position: relative;
+  text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #18362c;
+  opacity: 0.82;
+  padding: 6px 2px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  opacity: 1;
+  color: #e07a5f;
+}
+
+.nav-link.active {
+  opacity: 1;
+  color: #18362c;
+  font-weight: 700;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #e07a5f, #f7b94e);
+  border-radius: 4px;
+}
+
+/* Actions Section */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-add-recipe {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #18362c;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(24, 54, 44, 0.2);
+  transition: all 0.25s ease;
+}
+
+.btn-add-recipe:hover {
+  background: #234d3f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(24, 54, 44, 0.3);
+}
+
+.btn-add-recipe .btn-icon {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f7b94e;
+}
+
+.auth-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(24, 54, 44, 0.06);
+  padding: 5px 6px 5px 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(24, 54, 44, 0.12);
+}
+
+.user-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #18362c;
+}
+
+.btn-logout {
+  background: #e07a5f;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-logout:hover {
+  background: #d0674c;
+}
+
+.btn-login {
+  text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #18362c;
+  padding: 9px 18px;
+  border: 1.5px solid rgba(24, 54, 44, 0.2);
+  border-radius: 24px;
+  transition: all 0.2s ease;
+}
+
+.btn-login:hover {
+  border-color: #18362c;
+  background: rgba(24, 54, 44, 0.05);
+}
+
+.btn-signup {
+  text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #e07a5f;
+  padding: 9px 18px;
+  border-radius: 24px;
+  box-shadow: 0 3px 10px rgba(224, 122, 95, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-signup:hover {
+  background: #d0674c;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(224, 122, 95, 0.35);
+}
+
+/* Mobile Toggle */
+.mobile-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.mobile-toggle span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: #18362c;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobile-toggle.open span:nth-child(1) {
+  transform: translateY(8.5px) rotate(45deg);
+}
+
+.mobile-toggle.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-toggle.open span:nth-child(3) {
+  transform: translateY(-8.5px) rotate(-45deg);
+}
+
+/* Mobile Drawer */
+.mobile-drawer {
+  display: none;
+  overflow: hidden;
+  max-height: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(24, 54, 44, 0.1);
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-drawer.active {
+  max-height: 380px;
+}
+
+.mobile-drawer-content {
+  padding: 20px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mobile-nav-link {
+  text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #18362c;
+  padding: 10px 14px;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
+  background: rgba(24, 54, 44, 0.06);
+  color: #e07a5f;
+}
+
+.mobile-auth-divider {
+  height: 1px;
+  background: rgba(24, 54, 44, 0.1);
+  margin: 4px 0;
+}
+
+.mobile-auth-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mobile-btn-login,
+.mobile-btn-signup {
+  text-align: center;
+  text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.mobile-btn-login {
+  color: #18362c;
+  background: rgba(24, 54, 44, 0.08);
+}
+
+.mobile-btn-signup {
+  color: #ffffff;
+  background: #e07a5f;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 868px) {
+  .desktop-nav-links,
+  .auth-btns,
+  .user-profile-badge {
+    display: none;
+  }
+
+  .mobile-toggle,
+  .mobile-drawer {
+    display: flex;
+  }
+
+  .mobile-drawer {
+    display: block;
+  }
+}
