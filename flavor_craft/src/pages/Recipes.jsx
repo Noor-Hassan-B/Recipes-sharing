@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Footer from "../components/Footer.jsx";
 import Navbar from "../components/Navbar.jsx";
 import "./Recipes.css";
@@ -111,13 +111,29 @@ function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
+  const [recipesList, setRecipesList] = useState(initialRecipes);
 
-  const categories = ["All", "Indian", "Zimbabwean", "Italian", "Mexican"];
+  const categories = ["All", "Indian", "Zimbabwean", "Italian", "Mexican", "French", "Thai"];
 
-  const filteredRecipes = initialRecipes.filter((recipe) => {
-    const matchesSearch =
-      recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      recipe.description.toLowerCase().includes(searchQuery.toLowerCase());
+  useEffect(() => {
+    const saved = localStorage.getItem("flavorcraft_recipes_store");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const active = parsed.filter((r) => !r.status || r.status === "Approved");
+        setRecipesList(active.length ? active : initialRecipes);
+      } catch {
+        setRecipesList(initialRecipes);
+      }
+    } else {
+      setRecipesList(initialRecipes);
+    }
+  }, []);
+
+  const filteredRecipes = recipesList.filter((recipe) => {
+    const nameMatch = recipe.name ? recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    const descMatch = recipe.description ? recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    const matchesSearch = nameMatch || descMatch;
     const matchesCategory =
       selectedCategory === "All" || recipe.cuisine === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -194,7 +210,7 @@ function Recipes() {
                       <div className="recipe-details-expanded">
                         <h4>Ingredients</h4>
                         <div className="ingredients-list">
-                          {recipe.ingredients.map((ing, i) => (
+                          {(recipe.ingredients || ["Chef's proprietary spice blend", "Fresh seasonal vegetables & proteins"]).map((ing, i) => (
                             <span className="ingredient-tag" key={i}>
                               {ing}
                             </span>
@@ -203,7 +219,7 @@ function Recipes() {
 
                         <h4>Step-by-Step Instructions</h4>
                         <ol className="steps-list">
-                          {recipe.steps.map((step, index) => (
+                          {(recipe.steps || ["Prepare ingredients and sanitize workspace.", "Follow classical cooking instructions and garnish before serving."]).map((step, index) => (
                             <li key={index}>{step}</li>
                           ))}
                         </ol>
