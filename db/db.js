@@ -10,15 +10,26 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const connectDB = async () => {
+  const primaryURI = process.env.MONGO_URI;
+  const fallbackURI = 'mongodb://127.0.0.1:27017/recipe_sharing_db';
+
+  if (primaryURI) {
+    try {
+      const conn = await mongoose.connect(primaryURI, { serverSelectionTimeoutMS: 4000 });
+      console.log(`✅ MongoDB Connected (Cloud): ${conn.connection.host}`);
+      return conn;
+    } catch (error) {
+      console.warn(`⚠️ Cloud MongoDB Connection failed (${error.message}). Trying local fallback...`);
+    }
+  }
+
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/recipe_sharing_db';
-    const conn = await mongoose.connect(mongoURI);
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    const conn = await mongoose.connect(fallbackURI, { serverSelectionTimeoutMS: 4000 });
+    console.log(`✅ MongoDB Connected (Local): ${conn.connection.host}`);
     return conn;
-  } catch (error) {
-    console.error(`❌ Database Connection Error: ${error.message}`);
-    console.log('⚠️ Please make sure MongoDB is running or configure MONGO_URI in .env');
-    throw error;
+  } catch (fallbackError) {
+    console.error(`❌ Local MongoDB Connection Error: ${fallbackError.message}`);
+    console.log('⚠️ Server running, but MongoDB is offline. Configure MONGO_URI in .env or start mongod locally.');
   }
 };
 
