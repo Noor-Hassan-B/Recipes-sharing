@@ -2,7 +2,7 @@
   "name": "recipe-sharing-db",
   "version": "1.0.0",
   "description": "Database module and MongoDB schemas for Recipe Sharing Website",
-  "main": "db.js",
+  "main": "index.js",
   "scripts": {
     "test": "node testConnection.js",
     "seed": "node seed.js",
