@@ -1,59 +1,73 @@
 const router = require("express").Router();
-const { categories } = require("../data/mockDB");
+const { Category, auth } = require("../db");
+const { protect, adminOnly } = auth;
 
-// Get all categories
-router.get("/", (req, res) => {
-  res.json(categories);
+// GET / - Get all categories
+router.get("/", async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Get category
-router.get("/:id", (req, res) => {
-  const category = categories.find(c => c.id === req.params.id);
+// GET /:id - Get category by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
 
-  if (!category)
-    return res.status(404).json({ message: "Category not found" });
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
 
-  res.json(category);
+    res.json(category);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Create category
-router.post("/", (req, res) => {
-
-  const category = {
-    id: Date.now().toString(),
-    ...req.body
-  };
-
-  categories.push(category);
-
-  res.status(201).json(category);
+// POST / - Create a category
+router.post("/", async (req, res) => {
+  try {
+    const category = await Category.create(req.body);
+    res.status(201).json({ success: true, category });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 });
 
-// Update category
-router.put("/:id", (req, res) => {
+// PUT /:id - Update category
+router.put("/:id", async (req, res) => {
+  try {
+    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
 
-  const category = categories.find(c => c.id === req.params.id);
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
 
-  if (!category)
-    return res.status(404).json({ message: "Category not found" });
-
-  Object.assign(category, req.body);
-
-  res.json(category);
+    res.json({ success: true, category });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 });
 
-// Delete category
-router.delete("/:id", (req, res) => {
+// DELETE /:id - Delete category
+router.delete("/:id", async (req, res) => {
+  try {
+    const category = await Category.findByIdAndDelete(req.params.id);
 
-  const index = categories.findIndex(c => c.id === req.params.id);
+    if (!category) {
+      return res.status(404).json({ success: false, message: "Category not found" });
+    }
 
-  if (index === -1)
-    return res.status(404).json({ message: "Category not found" });
-
-  categories.splice(index, 1);
-
-  res.json({ message: "Category deleted successfully" });
-
+    res.json({ success: true, message: "Category deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 module.exports = router;
