@@ -94,8 +94,42 @@ function AddRecipe() {
       return;
     }
 
+    try {
+      const existing = JSON.parse(localStorage.getItem("flavorcraft_recipes_store") || "[]");
+      const newRecipeEntry = {
+        id: "r_" + Date.now(),
+        name: formData.name,
+        cuisine: formData.cuisine || "Indian",
+        time: formData.time || "30 min",
+        difficulty: formData.difficulty || "Easy",
+        publisherName: formData.publisherName || currentUser?.name || "Community Chef",
+        publisherContact: formData.publisherContact,
+        status: "Pending",
+        featured: false,
+        rating: 5.0,
+        reviewsCount: 1,
+        image: imagePreviewUrl || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80",
+        description: formData.instructions || "Authentic home recipe contributed to FlavorCraft community.",
+        ingredients: formData.ingredients ? formData.ingredients.split(",").map((i) => i.trim()) : ["Special homemade blend"],
+        steps: formData.instructions ? formData.instructions.split(". ").map((s) => s.trim()).filter(Boolean) : ["Follow authentic traditional cooking method."],
+      };
+      localStorage.setItem("flavorcraft_recipes_store", JSON.stringify([newRecipeEntry, ...existing]));
+
+      const existingAudit = JSON.parse(localStorage.getItem("flavorcraft_audit_store") || "[]");
+      existingAudit.unshift({
+        id: "a_" + Date.now(),
+        action: `New recipe "${formData.name}" submitted for moderation triage`,
+        actor: newRecipeEntry.publisherName,
+        time: "Just now",
+        category: "recipe",
+      });
+      localStorage.setItem("flavorcraft_audit_store", JSON.stringify(existingAudit));
+    } catch (err) {
+      console.warn("Could not sync to local storage", err);
+    }
+
     setMessage(
-      `Recipe "${formData.name}" published successfully by ${formData.publisherName}!`,
+      `Submission complete: Recipe "${formData.name}" has been routed to the administrative console for moderation triage.`,
     );
 
     // Reset form
