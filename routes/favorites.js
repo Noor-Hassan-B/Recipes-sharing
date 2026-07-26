@@ -1,46 +1,70 @@
 const router = require("express").Router();
-const { favorites } = require("../data/mockDB");
+const { Favorite, auth } = require("../db");
+const { protect } = auth;
 
-// Get all favorites
-router.get("/", (req, res) => {
+// GET / - Get all favorites
+router.get("/", async (req, res) => {
+  try {
+    const favorites = await Favorite.find()
+      .populate("user", "name email")
+      .populate("recipe", "name cuisine image");
     res.json(favorites);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Get favorites for a user
-router.get("/user/:userId", (req, res) => {
-
-    const userFavorites = favorites.filter(
-        f => f.userId === req.params.userId
-    );
-
-    res.json(userFavorites);
+// GET /user/:userId - Get favorites for a specific user
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const favorites = await Favorite.find({ user: req.params.userId })
+      .populate("recipe");
+    res.json(favorites);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Add favorite
-router.post("/", (req, res) => {
+// POST / - Add recipe to user's favorites
+router.post("/", protect, async (req, res) => {
+  try {
+    const { recipe, recipeId } = req.body;
+    const targetRecipe = recipe || recipeId;
 
-    const favorite = {
-        id: Date.now().toString(),
-        ...req.body
-    };
+    if (!targetRecipe) {
+      return res.status(400).json({ success: false, message: "Please provide recipe ID." });
+    }
 
-    favorites.push(favorite);
+    const favorite = await Favorite.findOneAndUpdate(
+      { user: req.user._id, recipe: targetRecipe },
+      { user: req.user._id, recipe: targetRecipe },
+      { new: true, upsert: true }
+    ).populate("recipe");
 
-    res.status(201).json(favorite);
+    res.status(201).json({ success: true, favorite });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 });
 
-// Remove favorite
-router.delete("/:id", (req, res) => {
+// DELETE /:id - Remove favorite
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const favorite = await Favorite.findById(req.params.id);
 
-    const index = favorites.findIndex(f => f.id === req.params.id);
+    if (!favorite) {
+      return res.status(404).json({ success: false, message: "Favorite not found" });
+    }
 
-    if (index === -1)
-        return res.status(404).json({ message: "Favorite not found" });
+    if (favorite.user.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to remove this favorite." });
+    }
 
-    favorites.splice(index, 1);
-
-    res.json({ message: "Favorite removed successfully" });
-
+    await favorite.deleteOne();
+    res.json({ success: true, message: "Favorite removed successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 module.exports = router;

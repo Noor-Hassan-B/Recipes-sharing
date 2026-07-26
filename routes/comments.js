@@ -1,47 +1,74 @@
 const router = require("express").Router();
-const { comments } = require("../data/mockDB");
+const { Comment, auth } = require("../db");
+const { protect } = auth;
 
-// Get all comments
-router.get("/", (req, res) => {
+// GET / - Get all comments
+router.get("/", async (req, res) => {
+  try {
+    const comments = await Comment.find()
+      .populate("user", "name email profileImage")
+      .populate("recipe", "name")
+      .sort({ createdAt: -1 });
     res.json(comments);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Get comments for a recipe
-router.get("/recipe/:recipeId", (req, res) => {
-
-    const recipeComments = comments.filter(
-        c => c.recipeId === req.params.recipeId
-    );
-
-    res.json(recipeComments);
+// GET /recipe/:recipeId - Get comments for a specific recipe
+router.get("/recipe/:recipeId", async (req, res) => {
+  try {
+    const comments = await Comment.find({ recipe: req.params.recipeId })
+      .populate("user", "name email profileImage")
+      .sort({ createdAt: -1 });
+    res.json(comments);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Add comment
-router.post("/", (req, res) => {
+// POST / - Add a comment
+router.post("/", protect, async (req, res) => {
+  try {
+    const { recipe, recipeId, text } = req.body;
+    const targetRecipe = recipe || recipeId;
 
-    const comment = {
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        ...req.body
-    };
+    if (!targetRecipe || !text) {
+      return res.status(400).json({ success: false, message: "Please provide recipe ID and comment text." });
+    }
 
-    comments.push(comment);
+    const comment = await Comment.create({
+      recipe: targetRecipe,
+      user: req.user._id,
+      text
+    });
 
-    res.status(201).json(comment);
+    await comment.populate("user", "name email profileImage");
+    res.status(201).json({ success: true, comment });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 });
 
-// Delete comment
-router.delete("/:id", (req, res) => {
+// DELETE /:id - Delete comment
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const comment = await Comment.findById(req.params.id);
 
-    const index = comments.findIndex(c => c.id === req.params.id);
+    if (!comment) {
+      return res.status(404).json({ success: false, message: "Comment not found" });
+    }
 
-    if (index === -1)
-        return res.status(404).json({ message: "Comment not found" });
+    // Allow author or admin to delete comment
+    if (comment.user.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to delete this comment." });
+    }
 
-    comments.splice(index, 1);
-
-    res.json({ message: "Comment deleted successfully" });
-
+    await comment.deleteOne();
+    res.json({ success: true, message: "Comment deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 module.exports = router;

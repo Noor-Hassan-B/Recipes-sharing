@@ -1,63 +1,125 @@
 const router = require("express").Router();
-const { recipes } = require("../data/mockDB");
+const { Recipe, Comment, Rating, auth } = require("../db");
+const { protect } = auth;
 
-// Get all recipes
-router.get("/", (req, res) => {
+// GET / - Get all recipes with search & category query filtering
+router.get("/", async (req, res) => {
+  try {
+    const { category, search } = req.query;
+    let query = {};
+
+    if (category && category !== "All") {
+      query.cuisine = { $regex: new RegExp(category, "i") };
+    }
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: new RegExp(search, "i") } },
+        { description: { $regex: new RegExp(search, "i") } },
+        { ingredients: { $elemMatch: { $regex: new RegExp(search, "i") } } }
+      ];
+    }
+
+    const recipes = await Recipe.find(query)
+      .populate("createdBy", "name email profileImage")
+      .sort({ createdAt: -1 });
+
     res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Get recipe by ID
-router.get("/:id", (req, res) => {
+// GET /:id - Get single recipe by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const recipe = await Recipe.findById(req.params.id)
+      .populate("createdBy", "name email profileImage");
 
-    const recipe = recipes.find(r => r.id === req.params.id);
-
-    if (!recipe)
-        return res.status(404).json({ message: "Recipe not found" });
+    if (!recipe) {
+      return res.status(404).json({ success: false, message: "Recipe not found" });
+    }
 
     res.json(recipe);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// Create recipe
-router.post("/", (req, res) => {
-
-    const recipe = {
-        id: Date.now().toString(),
-        image: "/uploads/default-recipe.jpg",
-        averageRating: 0,
-        likes: 0,
-        ...req.body
+// POST / - Create a new recipe (Protected or optional user fallback)
+router.post("/", async (req, res) => {
+  try {
+    const recipeData = {
+      ...req.body,
+      image: req.body.image || "/uploads/default-recipe.jpg"
     };
 
-    recipes.push(recipe);
-
-    res.status(201).json(recipe);
+    const recipe = await Recipe.create(recipeData);
+    res.status(201).json({ success: true, recipe });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 });
 
-// Update recipe
-router.put("/:id", (req, res) => {
-
-    const recipe = recipes.find(r => r.id === req.params.id);
-
-    if (!recipe)
-        return res.status(404).json({ message: "Recipe not found" });
-
-    Object.assign(recipe, req.body);
-
-    res.json(recipe);
+// POST /:id/comments - Add comment to recipe
+router.post("/:id/comments", protect, async (req, res) => {
+  try {
+    const comment = await Comment.create({
+      recipe: req.params.id,
+      user: req.user._id,
+      text: req.body.text
+    });
+    res.status(201).json({ success: true, comment });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
 });
 
-// Delete recipe
-router.delete("/:id", (req, res) => {
+// POST /:id/ratings - Add rating to recipe
+router.post("/:id/ratings", protect, async (req, res) => {
+  try {
+    const rating = await Rating.create({
+      recipe: req.params.id,
+      user: req.user._id,
+      score: req.body.score
+    });
+    res.status(201).json({ success: true, rating });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
 
-    const index = recipes.findIndex(r => r.id === req.params.id);
+// PUT /:id - Update recipe
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
 
-    if (index === -1)
-        return res.status(404).json({ message: "Recipe not found" });
+    if (!recipe) {
+      return res.status(404).json({ success: false, message: "Recipe not found" });
+    }
 
-    recipes.splice(index, 1);
+    res.json({ success: true, recipe });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
 
-    res.json({ message: "Recipe deleted successfully" });
+// DELETE /:id - Delete recipe
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const recipe = await Recipe.findByIdAndDelete(req.params.id);
 
+    if (!recipe) {
+      return res.status(404).json({ success: false, message: "Recipe not found" });
+    }
+
+    res.json({ success: true, message: "Recipe deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 module.exports = router;
