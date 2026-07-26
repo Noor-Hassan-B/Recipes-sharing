@@ -52,11 +52,18 @@ function Navbar() {
     navigate("/");
   }
 
+  const isAdmin =
+    isLoggedIn &&
+    currentUser &&
+    (currentUser.role === "admin" ||
+      currentUser.email?.toLowerCase().includes("admin") ||
+      currentUser.name?.toLowerCase().includes("deepam"));
+
   return (
     <header className={`navbar-header ${isScrolled ? "scrolled" : ""}`}>
       <div className="navbar-container">
         {/* Brand / Logo */}
-        <Link className="brand-logo" to="/" aria-label="FlavorCraft home">
+        <Link className="brand-logo" to={isAdmin ? "/admin" : "/"} aria-label="FlavorCraft home">
           <span className="brand-text">
             Flavor<span className="brand-highlight">Craft</span>
           </span>
@@ -64,43 +71,59 @@ function Navbar() {
 
         {/* Desktop Navigation Links */}
         <nav className="desktop-nav-links" aria-label="Primary navigation">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/recipes"
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-          >
-            Recipes
-          </NavLink>
-          <NavLink
-            to="/about-us"
-            className={({ isActive }) =>
-              isActive ? "nav-link active" : "nav-link"
-            }
-          >
-            About Us
-          </NavLink>
+          {!isAdmin ? (
+            <>
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+              >
+                Home
+              </NavLink>
+              <NavLink
+                to="/recipes"
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+              >
+                Recipes
+              </NavLink>
+              <NavLink
+                to="/about-us"
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+              >
+                About Us
+              </NavLink>
+            </>
+          ) : (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                isActive ? "nav-link active" : "nav-link"
+              }
+              style={{ fontWeight: "700", color: "#112920" }}
+            >
+              Admin Console
+            </NavLink>
+          )}
         </nav>
 
         {/* Right Actions */}
         <div className="navbar-actions">
-          <Link to="/add-recipes" className="btn-add-recipe">
-            <span className="btn-icon">+</span> Share Recipe
-          </Link>
+          {!isAdmin && (
+            <Link to="/add-recipes" className="btn-add-recipe">
+              <span className="btn-icon">+</span> Share Recipe
+            </Link>
+          )}
 
           {isLoggedIn ? (
             <div className="user-profile-badge">
-              <span className="user-name">
-                👤 {currentUser?.name || "User"}
+              <span className="user-name" style={{ fontWeight: "700" }}>
+                {currentUser?.name || "User"}
               </span>
               <button
                 onClick={handleLogout}
@@ -137,18 +160,26 @@ function Navbar() {
       {/* Mobile Drawer Navigation */}
       <div className={`mobile-drawer ${mobileMenuOpen ? "active" : ""}`}>
         <div className="mobile-drawer-content">
-          <NavLink to="/" end className="mobile-nav-link">
-            🏠 Home
-          </NavLink>
-          <NavLink to="/recipes" className="mobile-nav-link">
-            🍲 Explore Recipes
-          </NavLink>
-          <NavLink to="/add-recipes" className="mobile-nav-link">
-            ✨ Add New Recipe
-          </NavLink>
-          <NavLink to="/about-us" className="mobile-nav-link">
-            ℹ️ About Us
-          </NavLink>
+          {!isAdmin ? (
+            <>
+              <NavLink to="/" end className="mobile-nav-link">
+                Home
+              </NavLink>
+              <NavLink to="/recipes" className="mobile-nav-link">
+                Explore Recipes
+              </NavLink>
+              <NavLink to="/add-recipes" className="mobile-nav-link">
+                Add New Recipe
+              </NavLink>
+              <NavLink to="/about-us" className="mobile-nav-link">
+                About Us
+              </NavLink>
+            </>
+          ) : (
+            <NavLink to="/admin" className="mobile-nav-link" style={{ fontWeight: "700", color: "#112920" }}>
+              Admin Console
+            </NavLink>
+          )}
 
           <div className="mobile-auth-divider"></div>
 
@@ -157,12 +188,12 @@ function Navbar() {
               style={{ display: "flex", flexDirection: "column", gap: "10px" }}
             >
               <span style={{ fontWeight: "700", color: "#18362c" }}>
-                👤 Logged in as: {currentUser?.name || "User"}
+                Logged in as: {currentUser?.name || "User"}
               </span>
               <button
                 onClick={handleLogout}
                 style={{
-                  background: "#e07a5f",
+                  background: "#112920",
                   color: "#fff",
                   border: "none",
                   padding: "10px",
