@@ -13,22 +13,23 @@ function Login() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    // Derive name from email if needed
+    const isUserAdmin = email.toLowerCase().includes("admin") || email.toLowerCase().includes("deepam");
     const derivedName = email.split("@")[0].replace(/[._]/g, " ");
     const formattedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
 
     const userObj = {
-      name: formattedName || "Chef User",
+      name: isUserAdmin ? `${formattedName || "Admin"} (Master Admin)` : (formattedName || "Chef User"),
       email: email,
+      role: isUserAdmin ? "admin" : "chef",
     };
 
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("user", JSON.stringify(userObj));
 
-    setMessage("🎉 Login successful! Redirecting...");
+    setMessage("Authentication verified. Redirecting to system workspace...");
 
     setTimeout(() => {
-      navigate("/add-recipes");
+      navigate(isUserAdmin ? "/admin" : "/add-recipes");
     }, 800);
   }
 
