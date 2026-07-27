@@ -4,14 +4,32 @@ import Footer from "../components/Footer.jsx";
 import Navbar from "../components/Navbar.jsx";
 import "./Auth.css";
 
+import { loginUser } from "../services/api.js";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setMessage("");
+
+    try {
+      const res = await loginUser(email, password);
+      if (res && res.token) {
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("user", JSON.stringify(res.user));
+        setMessage("Authentication verified. Redirecting...");
+        const isUserAdmin = res.user.role === "admin";
+        setTimeout(() => navigate(isUserAdmin ? "/admin" : "/add-recipes"), 800);
+        return;
+      }
+    } catch (err) {
+      console.warn("Backend API login fallback to offline mode:", err.message);
+    }
 
     const isUserAdmin = email.toLowerCase().includes("admin") || email.toLowerCase().includes("deepam");
     const derivedName = email.split("@")[0].replace(/[._]/g, " ");

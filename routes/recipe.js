@@ -1,125 +1,22 @@
 const router = require("express").Router();
-const { Recipe, Comment, Rating, auth } = require("../db");
+const { auth } = require("../db");
 const { protect } = auth;
+const {
+  getRecipes,
+  getRecipeById,
+  createRecipe,
+  addRecipeComment,
+  addRecipeRating,
+  updateRecipe,
+  deleteRecipe
+} = require("../backend/controllers/recipeController");
 
-// GET / - Get all recipes with search & category query filtering
-router.get("/", async (req, res) => {
-  try {
-    const { category, search } = req.query;
-    let query = {};
-
-    if (category && category !== "All") {
-      query.cuisine = { $regex: new RegExp(category, "i") };
-    }
-
-    if (search) {
-      query.$or = [
-        { name: { $regex: new RegExp(search, "i") } },
-        { description: { $regex: new RegExp(search, "i") } },
-        { ingredients: { $elemMatch: { $regex: new RegExp(search, "i") } } }
-      ];
-    }
-
-    const recipes = await Recipe.find(query)
-      .populate("createdBy", "name email profileImage")
-      .sort({ createdAt: -1 });
-
-    res.json(recipes);
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// GET /:id - Get single recipe by ID
-router.get("/:id", async (req, res) => {
-  try {
-    const recipe = await Recipe.findById(req.params.id)
-      .populate("createdBy", "name email profileImage");
-
-    if (!recipe) {
-      return res.status(404).json({ success: false, message: "Recipe not found" });
-    }
-
-    res.json(recipe);
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// POST / - Create a new recipe (Protected or optional user fallback)
-router.post("/", async (req, res) => {
-  try {
-    const recipeData = {
-      ...req.body,
-      image: req.body.image || "/uploads/default-recipe.jpg"
-    };
-
-    const recipe = await Recipe.create(recipeData);
-    res.status(201).json({ success: true, recipe });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-});
-
-// POST /:id/comments - Add comment to recipe
-router.post("/:id/comments", protect, async (req, res) => {
-  try {
-    const comment = await Comment.create({
-      recipe: req.params.id,
-      user: req.user._id,
-      text: req.body.text
-    });
-    res.status(201).json({ success: true, comment });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-});
-
-// POST /:id/ratings - Add rating to recipe
-router.post("/:id/ratings", protect, async (req, res) => {
-  try {
-    const rating = await Rating.create({
-      recipe: req.params.id,
-      user: req.user._id,
-      score: req.body.score
-    });
-    res.status(201).json({ success: true, rating });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-});
-
-// PUT /:id - Update recipe
-router.put("/:id", protect, async (req, res) => {
-  try {
-    const recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
-
-    if (!recipe) {
-      return res.status(404).json({ success: false, message: "Recipe not found" });
-    }
-
-    res.json({ success: true, recipe });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-});
-
-// DELETE /:id - Delete recipe
-router.delete("/:id", protect, async (req, res) => {
-  try {
-    const recipe = await Recipe.findByIdAndDelete(req.params.id);
-
-    if (!recipe) {
-      return res.status(404).json({ success: false, message: "Recipe not found" });
-    }
-
-    res.json({ success: true, message: "Recipe deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+router.get("/", getRecipes);
+router.get("/:id", getRecipeById);
+router.post("/", protect, createRecipe);
+router.post("/:id/comments", protect, addRecipeComment);
+router.post("/:id/ratings", protect, addRecipeRating);
+router.put("/:id", protect, updateRecipe);
+router.delete("/:id", protect, deleteRecipe);
 
 module.exports = router;

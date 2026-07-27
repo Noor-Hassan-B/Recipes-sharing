@@ -145,6 +145,8 @@ const INITIAL_AUDIT = [
   { id: "a4", action: "Database synchronized with verified production repository schemas", actor: "System Administrator", time: "1d ago", category: "system" }
 ];
 
+import { fetchRecipes, fetchUsers } from "../services/api.js";
+
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("recipes");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -189,10 +191,56 @@ function AdminDashboard() {
     checkAdminState();
 
     const savedRecipes = localStorage.getItem("flavorcraft_recipes_store");
-    setRecipes(savedRecipes ? JSON.parse(savedRecipes) : INITIAL_ADMIN_RECIPES);
+    const localRecipes = savedRecipes ? JSON.parse(savedRecipes) : INITIAL_ADMIN_RECIPES;
 
     const savedUsers = localStorage.getItem("flavorcraft_users_store");
-    setUsers(savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS);
+    const localUsers = savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS;
+
+    setRecipes(localRecipes);
+    setUsers(localUsers);
+
+    async function loadLiveBackendData() {
+      try {
+        const [apiRecipes, apiUsers] = await Promise.all([
+          fetchRecipes(),
+          fetchUsers()
+        ]);
+
+        if (apiRecipes && Array.isArray(apiRecipes) && apiRecipes.length > 0) {
+          const formattedRecipes = apiRecipes.map(r => ({
+            id: r._id,
+            name: r.title,
+            cuisine: r.category || "General",
+            time: `${r.preparationTime || 30} min`,
+            difficulty: r.difficulty || "Medium",
+            publisherName: r.createdBy?.name || "Community Chef",
+            status: "Approved",
+            featured: false,
+            rating: r.averageRating || 4.8,
+            reviewsCount: 1,
+            image: r.image || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80",
+            description: r.description
+          }));
+          setRecipes(formattedRecipes);
+        }
+
+        if (apiUsers && Array.isArray(apiUsers) && apiUsers.length > 0) {
+          const formattedUsers = apiUsers.map(u => ({
+            id: u._id,
+            name: u.name,
+            email: u.email,
+            role: u.role || "chef",
+            status: "Active",
+            recipesCount: 1,
+            joined: u.createdAt ? u.createdAt.split("T")[0] : "Recently"
+          }));
+          setUsers(formattedUsers);
+        }
+      } catch (err) {
+        console.warn("Backend API fetch in Admin Dashboard fallback:", err);
+      }
+    }
+    loadLiveBackendData();
 
     const savedComments = localStorage.getItem("flavorcraft_comments_store");
     setComments(savedComments ? JSON.parse(savedComments) : INITIAL_COMMENTS);

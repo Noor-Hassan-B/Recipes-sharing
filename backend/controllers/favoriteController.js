@@ -5,8 +5,8 @@ const { Favorite } = require("../../db");
 const getFavorites = async (req, res) => {
   try {
     const favorites = await Favorite.find()
-      .populate("user", "name email")
-      .populate("recipe", "name cuisine image");
+      .populate("userId", "name email")
+      .populate("recipeId", "title category image");
     res.json(favorites);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -16,8 +16,8 @@ const getFavorites = async (req, res) => {
 // GET /user/:userId - Get favorites for a specific user
 const getFavoritesByUser = async (req, res) => {
   try {
-    const favorites = await Favorite.find({ user: req.params.userId })
-      .populate("recipe");
+    const favorites = await Favorite.find({ userId: req.params.userId })
+      .populate("recipeId");
     res.json(favorites);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -35,10 +35,10 @@ const addFavorite = async (req, res) => {
     }
 
     const favorite = await Favorite.findOneAndUpdate(
-      { user: req.user._id, recipe: targetRecipe },
-      { user: req.user._id, recipe: targetRecipe },
+      { userId: req.user._id, recipeId: targetRecipe },
+      { userId: req.user._id, recipeId: targetRecipe },
       { new: true, upsert: true }
-    ).populate("recipe");
+    ).populate("recipeId");
 
     res.status(201).json({ success: true, favorite });
   } catch (error) {
@@ -55,7 +55,7 @@ const removeFavorite = async (req, res) => {
       return res.status(404).json({ success: false, message: "Favorite not found" });
     }
 
-    if (favorite.user.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+    if (favorite.userId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
       return res.status(403).json({ success: false, message: "Not authorized to remove this favorite." });
     }
 

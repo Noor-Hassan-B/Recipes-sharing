@@ -4,25 +4,44 @@ import Footer from "../components/Footer.jsx";
 import Navbar from "../components/Navbar.jsx";
 import "./Auth.css";
 
+import { registerUser } from "../services/api.js";
+
 function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      const res = await registerUser({ name, email, password });
+      if (res && res.token) {
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("user", JSON.stringify(res.user));
+        setMessage("🎉 Account created & saved to database! Redirecting...");
+        setTimeout(() => navigate("/add-recipes"), 800);
+        return;
+      }
+    } catch (err) {
+      console.warn("Backend API register fallback to offline mode:", err.message);
+    }
 
     const userObj = {
       name: name || "Chef User",
       email: email,
+      role: "user"
     };
 
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("user", JSON.stringify(userObj));
-
-    setMessage("🎉 Account created successfully! Redirecting...");
+    setMessage("🎉 Account created! Redirecting...");
 
     setTimeout(() => {
       navigate("/add-recipes");

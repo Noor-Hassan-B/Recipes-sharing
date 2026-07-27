@@ -18,3 +18,8 @@ npm-debug.log*
 # OS / Editor
 .DS_Store
 .vscode/
+
+# User-uploaded files (keep the default placeholders tracked)
+backend/uploads/*
+!backend/uploads/default-recipe.jpg
+!backend/uploads/default-avatar.png

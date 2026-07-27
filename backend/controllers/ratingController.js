@@ -5,8 +5,8 @@ const { Rating } = require("../../db");
 const getRatings = async (req, res) => {
   try {
     const ratings = await Rating.find()
-      .populate("user", "name email")
-      .populate("recipe", "name");
+      .populate("userId", "name email")
+      .populate("recipeId", "title");
     res.json(ratings);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -16,8 +16,8 @@ const getRatings = async (req, res) => {
 // GET /recipe/:recipeId - Get ratings for a specific recipe
 const getRatingsByRecipe = async (req, res) => {
   try {
-    const ratings = await Rating.find({ recipe: req.params.recipeId })
-      .populate("user", "name email");
+    const ratings = await Rating.find({ recipeId: req.params.recipeId })
+      .populate("userId", "name email");
     res.json(ratings);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -35,8 +35,8 @@ const createOrUpdateRating = async (req, res) => {
     }
 
     const rating = await Rating.findOneAndUpdate(
-      { recipe: targetRecipe, user: req.user._id },
-      { score },
+      { recipeId: targetRecipe, userId: req.user._id },
+      { rating: score },
       { new: true, upsert: true, runValidators: true }
     );
 
@@ -55,7 +55,7 @@ const deleteRating = async (req, res) => {
       return res.status(404).json({ success: false, message: "Rating not found" });
     }
 
-    if (rating.user.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+    if (rating.userId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
       return res.status(403).json({ success: false, message: "Not authorized to delete this rating." });
     }
 

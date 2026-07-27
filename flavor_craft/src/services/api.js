@@ -6,10 +6,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 
 // Generic helper function for API requests
 async function apiFetch(endpoint, options = {}) {
+  const token = localStorage.getItem('token');
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeader,
         ...options.headers,
       },
       ...options,
@@ -70,6 +74,14 @@ export async function registerUser(userData) {
     method: 'POST',
     body: JSON.stringify(userData),
   });
+}
+
+export async function fetchUsers() {
+  try {
+    return await apiFetch('/users');
+  } catch {
+    return null;
+  }
 }
 
 /* ==========================================================================

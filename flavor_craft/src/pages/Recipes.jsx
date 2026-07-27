@@ -107,27 +107,54 @@ const initialRecipes = [
   },
 ];
 
+import { fetchRecipes } from "../services/api.js";
+
 function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
   const [recipesList, setRecipesList] = useState(initialRecipes);
 
-  const categories = ["All", "Indian", "Zimbabwean", "Italian", "Mexican", "French", "Thai"];
+  const categories = ["All", "Indian", "Zimbabwean", "Italian", "Mexican", "Healthy & Vegan", "Breakfast", "Desserts"];
 
   useEffect(() => {
-    const saved = localStorage.getItem("flavorcraft_recipes_store");
-    if (saved) {
+    async function loadRecipes() {
       try {
-        const parsed = JSON.parse(saved);
-        const active = parsed.filter((r) => !r.status || r.status === "Approved");
-        setRecipesList(active.length ? active : initialRecipes);
-      } catch {
+        const apiRecipes = await fetchRecipes();
+        if (apiRecipes && Array.isArray(apiRecipes) && apiRecipes.length > 0) {
+          const formatted = apiRecipes.map(r => ({
+            id: r._id,
+            name: r.title,
+            cuisine: r.category || "General",
+            time: `${r.preparationTime || 30} min`,
+            difficulty: r.difficulty || "Medium",
+            image: r.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=700&q=80",
+            description: r.description,
+            ingredients: Array.isArray(r.ingredients) ? r.ingredients : [r.ingredients],
+            steps: typeof r.instructions === "string" ? r.instructions.split("\n").filter(Boolean) : [r.instructions],
+            rating: r.averageRating || 4.8
+          }));
+          setRecipesList(formatted);
+          return;
+        }
+      } catch (err) {
+        console.warn("Backend API fetch fallback to local:", err);
+      }
+
+      const saved = localStorage.getItem("flavorcraft_recipes_store");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          const active = parsed.filter((r) => !r.status || r.status === "Approved");
+          setRecipesList(active.length ? active : initialRecipes);
+        } catch {
+          setRecipesList(initialRecipes);
+        }
+      } else {
         setRecipesList(initialRecipes);
       }
-    } else {
-      setRecipesList(initialRecipes);
     }
+    loadRecipes();
   }, []);
 
   const filteredRecipes = recipesList.filter((recipe) => {
@@ -138,6 +165,7 @@ function Recipes() {
       selectedCategory === "All" || recipe.cuisine === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
 
   return (
     <div className="recipes-page">
@@ -193,6 +221,7 @@ function Recipes() {
                     <div className="recipe-meta-pills">
                       <span className="recipe-meta-pill">⏱️ {recipe.time}</span>
                       <span className="recipe-meta-pill">📊 {recipe.difficulty}</span>
+                      <span className="recipe-meta-pill">⭐ {recipe.rating || 4.8}</span>
                     </div>
 
                     <p className="recipe-desc">{recipe.description}</p>

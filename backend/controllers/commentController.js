@@ -5,8 +5,8 @@ const { Comment } = require("../../db");
 const getComments = async (req, res) => {
   try {
     const comments = await Comment.find()
-      .populate("user", "name email profileImage")
-      .populate("recipe", "name")
+      .populate("userId", "name email profileImage")
+      .populate("recipeId", "title")
       .sort({ createdAt: -1 });
     res.json(comments);
   } catch (error) {
@@ -17,8 +17,8 @@ const getComments = async (req, res) => {
 // GET /recipe/:recipeId - Get comments for a specific recipe
 const getCommentsByRecipe = async (req, res) => {
   try {
-    const comments = await Comment.find({ recipe: req.params.recipeId })
-      .populate("user", "name email profileImage")
+    const comments = await Comment.find({ recipeId: req.params.recipeId })
+      .populate("userId", "name email profileImage")
       .sort({ createdAt: -1 });
     res.json(comments);
   } catch (error) {
@@ -37,12 +37,12 @@ const createComment = async (req, res) => {
     }
 
     const comment = await Comment.create({
-      recipe: targetRecipe,
-      user: req.user._id,
-      text
+      recipeId: targetRecipe,
+      userId: req.user._id,
+      comment: text
     });
 
-    await comment.populate("user", "name email profileImage");
+    await comment.populate("userId", "name email profileImage");
     res.status(201).json({ success: true, comment });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -59,7 +59,7 @@ const deleteComment = async (req, res) => {
     }
 
     // Allow author or admin to delete comment
-    if (comment.user.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+    if (comment.userId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
       return res.status(403).json({ success: false, message: "Not authorized to delete this comment." });
     }
 

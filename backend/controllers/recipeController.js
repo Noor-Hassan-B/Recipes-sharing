@@ -8,12 +8,12 @@ const getRecipes = async (req, res) => {
     let query = {};
 
     if (category && category !== "All") {
-      query.cuisine = { $regex: new RegExp(category, "i") };
+      query.category = { $regex: new RegExp(category, "i") };
     }
 
     if (search) {
       query.$or = [
-        { name: { $regex: new RegExp(search, "i") } },
+        { title: { $regex: new RegExp(search, "i") } },
         { description: { $regex: new RegExp(search, "i") } },
         { ingredients: { $elemMatch: { $regex: new RegExp(search, "i") } } }
       ];
@@ -45,11 +45,12 @@ const getRecipeById = async (req, res) => {
   }
 };
 
-// POST / - Create a new recipe
+// POST / - Create a new recipe (Protected - createdBy is required by the schema)
 const createRecipe = async (req, res) => {
   try {
     const recipeData = {
       ...req.body,
+      createdBy: req.user._id,
       image: req.body.image || "/uploads/default-recipe.jpg"
     };
 
@@ -64,9 +65,9 @@ const createRecipe = async (req, res) => {
 const addRecipeComment = async (req, res) => {
   try {
     const comment = await Comment.create({
-      recipe: req.params.id,
-      user: req.user._id,
-      text: req.body.text
+      recipeId: req.params.id,
+      userId: req.user._id,
+      comment: req.body.text
     });
     res.status(201).json({ success: true, comment });
   } catch (error) {
@@ -78,9 +79,9 @@ const addRecipeComment = async (req, res) => {
 const addRecipeRating = async (req, res) => {
   try {
     const rating = await Rating.create({
-      recipe: req.params.id,
-      user: req.user._id,
-      score: req.body.score
+      recipeId: req.params.id,
+      userId: req.user._id,
+      rating: req.body.score
     });
     res.status(201).json({ success: true, rating });
   } catch (error) {
