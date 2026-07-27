@@ -45,13 +45,21 @@ const getRecipeById = async (req, res) => {
   }
 };
 
-// POST / - Create a new recipe (Protected - createdBy is required by the schema)
+// POST / - Create a new recipe (Supports authenticated users and guest submissions with default admin fallback)
 const createRecipe = async (req, res) => {
   try {
+    const { User } = require("../../db");
+    let createdByUserId = req.user ? req.user._id : null;
+    
+    if (!createdByUserId) {
+      const adminUser = await User.findOne({ role: "admin" }) || await User.findOne();
+      createdByUserId = adminUser ? adminUser._id : null;
+    }
+
     const recipeData = {
       ...req.body,
-      createdBy: req.user._id,
-      image: req.body.image || "/uploads/default-recipe.jpg"
+      createdBy: createdByUserId,
+      image: req.body.image || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80"
     };
 
     const recipe = await Recipe.create(recipeData);

@@ -18,6 +18,7 @@
     "Mexican",
     "Indian",
     "Chinese",
+    "Zimbabwean",
     "Desserts",
     "Healthy & Vegan",
     "Breakfast",
@@ -85,6 +86,124 @@
       "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
       "averageRating": 4.7,
       "likes": 18
+    },
+    {
+      "title": "Crispy Masala Dosa",
+      "description": "Thin golden crisp rice crepe filled with fragrant spiced potatoes and served with coconut chutney.",
+      "ingredients": [
+        "2 cups Fermented Dosa Batter",
+        "3 Medium potatoes (boiled & mashed)",
+        "1 Finely chopped onion",
+        "1 tsp Mustard seeds",
+        "1 sprig Curry leaves",
+        "1/2 tsp Turmeric powder",
+        "2 tbsp Ghee"
+      ],
+      "instructions": "1. Temper mustard seeds and curry leaves in hot oil, then sauté onions and spiced potatoes.\n2. Ladle batter onto a preheated griddle and spread thin with circular motions.\n3. Drizzle ghee along the edges until golden and crispy.\n4. Place potato masala in center, fold tight and serve hot with coconut chutney.",
+      "category": "Indian",
+      "difficulty": "Easy",
+      "preparationTime": 35,
+      "image": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 4.8,
+      "likes": 35
+    },
+    {
+      "title": "Sadza and Grilled Fish",
+      "description": "Classic Zimbabwean feast of smooth white sadza, seasoned tilapia, and fresh leafy greens.",
+      "ingredients": [
+        "2 cups White Cornmeal (Mealie meal)",
+        "2 Whole Tilapia Fish",
+        "1 bunch Collard Greens / Rape",
+        "2 Chopped tomatoes",
+        "1 Chopped onion",
+        "2 tbsp Vegetable oil",
+        "Salt & lemon pepper"
+      ],
+      "instructions": "1. Stir cornmeal into boiling water continuously until thick smooth dough forms.\n2. Season tilapia with lemon pepper, herbs, and grill over medium hot coals.\n3. Sauté greens with onions and tomatoes until tender.\n4. Serve warm sadza with grilled fish and seasoned greens.",
+      "category": "Zimbabwean",
+      "difficulty": "Easy",
+      "preparationTime": 30,
+      "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 5.0,
+      "likes": 50
+    },
+    {
+      "title": "Street Style Tacos",
+      "description": "Warm corn tortillas piled high with flame-grilled seasoned meat, fresh cilantro, and salsa verde.",
+      "ingredients": [
+        "8 Small Corn Tortillas",
+        "400g Flank Steak or Skirt Steak",
+        "1/2 cup Chopped fresh cilantro",
+        "1/2 Finely diced white onion",
+        "2 Limes (quartered)",
+        "1/2 cup Salsa verde",
+        "1 tbsp Taco seasoning mix"
+      ],
+      "instructions": "1. Marinate steak with taco seasoning and citrus juice for 20 mins.\n2. Flame-grill steak on high heat until charred, then dice into small bites.\n3. Warm corn tortillas on a dry skillet.\n4. Layer meat onto double tortillas, top with onion, cilantro, and squeeze of fresh lime.",
+      "category": "Mexican",
+      "difficulty": "Easy",
+      "preparationTime": 25,
+      "image": "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 4.9,
+      "likes": 29
+    },
+    {
+      "title": "Authentic Kung Pao Chicken",
+      "description": "Szechuan stir-fry dish with tender chicken cubes, roasted peanuts, and vibrant chili peppers.",
+      "ingredients": [
+        "400g Chicken breast (cubed)",
+        "1/2 cup Roasted peanuts",
+        "6 Dried red chili peppers",
+        "2 Green onions (diced)",
+        "2 tbsp Soy sauce",
+        "1 tbsp Shaoxing wine",
+        "1 tsp Szechuan peppercorns",
+        "1 tbsp Cornstarch"
+      ],
+      "instructions": "1. Marinate chicken with soy sauce and cornstarch for 15 mins.\n2. Heat wok, stir-fry dried chilis and peppercorns until fragrant.\n3. Add chicken and stir-fry until golden brown.\n4. Toss in peanuts, green onions, and sauce mixture. Stir until glossy and hot.",
+      "category": "Chinese",
+      "difficulty": "Medium",
+      "preparationTime": 25,
+      "image": "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 4.7,
+      "likes": 31
+    },
+    {
+      "title": "Decadent Chocolate Lava Cake",
+      "description": "Warm individual chocolate cakes with a gooey flowing molten center, served with vanilla bean ice cream.",
+      "ingredients": [
+        "100g Dark chocolate (70%)",
+        "1/2 cup Unsalted butter",
+        "2 Whole eggs + 2 egg yolks",
+        "1/4 cup Powdered sugar",
+        "2 tbsp All-purpose flour",
+        "1 tsp Vanilla extract"
+      ],
+      "instructions": "1. Melt dark chocolate and butter over a water bath until smooth.\n2. Whisk eggs, yolks, and powdered sugar until light and fluffy.\n3. Fold melted chocolate and flour gently into egg mixture.\n4. Pour into buttered ramekins and bake at 220°C (425°F) for 12 mins.\n5. Invert onto plate and serve immediately with ice cream.",
+      "category": "Desserts",
+      "difficulty": "Medium",
+      "preparationTime": 20,
+      "image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 5.0,
+      "likes": 64
+    },
+    {
+      "title": "Berry Blast Antioxidant Smoothie",
+      "description": "Refreshing and energizing blend of strawberries, blueberries, Greek yogurt, and honey.",
+      "ingredients": [
+        "1 cup Mixed frozen berries (Strawberries, Blueberries, Raspberries)",
+        "1/2 cup Greek yogurt",
+        "1 cup Almond milk",
+        "1 tbsp Raw honey",
+        "1 tbsp Chia seeds"
+      ],
+      "instructions": "1. Combine frozen berries, Greek yogurt, almond milk, and honey in a high-speed blender.\n2. Blend on high for 60 seconds until completely smooth.\n3. Pour into chilled glass, sprinkle chia seeds on top, and enjoy with a straw.",
+      "category": "Beverages",
+      "difficulty": "Easy",
+      "preparationTime": 5,
+      "image": "https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=800&q=80",
+      "averageRating": 4.8,
+      "likes": 22
     }
   ]
 }
