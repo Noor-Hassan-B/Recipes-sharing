@@ -1,23 +1,21 @@
 // backend/middleware/errorMiddleware.js
-// Centralized error handling: 404 (Not Found) + global error handler
+// Centralized, hardened error handling middleware
 
-// Catches any request that didn't match a route above it in server.js
+// Catches unmatched routes
 const notFound = (req, res, next) => {
-  const error = new Error(`Route not found - ${req.originalUrl}`);
+  const error = new Error(`Resource not found - ${req.originalUrl}`);
   error.status = 404;
   next(error);
 };
 
-// Must be the LAST middleware mounted in server.js (4 args = Express error handler)
+// Global error handler
 const errorHandler = (err, req, res, next) => {
-  // If a route already set a status code (e.g. 400/401/403), keep it;
-  // otherwise default to 500 for unexpected errors.
   let statusCode = res.statusCode !== 200 ? res.statusCode : (err.status || 500);
 
-  // Mongoose bad ObjectId
+  // Mongoose CastError (bad ObjectId)
   if (err.name === "CastError" && err.kind === "ObjectId") {
     statusCode = 404;
-    err.message = "Resource not found";
+    err.message = "Requested resource not found";
   }
 
   // Mongoose validation error
@@ -28,16 +26,30 @@ const errorHandler = (err, req, res, next) => {
       .join(", ");
   }
 
-  // Mongoose duplicate key error
+  // Mongoose duplicate key error (E11000)
   if (err.code === 11000) {
     statusCode = 400;
-    const field = Object.keys(err.keyValue || {})[0];
-    err.message = `Duplicate value for field: ${field}`;
+    const field = Object.keys(err.keyValue || {})[0] || "field";
+    err.message = `An entry with this ${field} already exists.`;
+  }
+
+  // Multer upload errors
+  if (err.name === "MulterError") {
+    statusCode = 400;
+    if (err.code === "LIMIT_FILE_SIZE") {
+      err.message = "File exceeds the maximum allowed size of 5MB.";
+    }
+  }
+
+  // CORS security error
+  if (err.message && err.message.includes("CORS blocked")) {
+    statusCode = 403;
   }
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Server Error",
+    message: err.message || "An unexpected error occurred.",
+    // Never expose stack trace in production environments
     stack: process.env.NODE_ENV === "production" ? undefined : err.stack
   });
 };

@@ -1,6 +1,9 @@
+// routes/favorites.js - Protected Favorite Routes
+
 const router = require("express").Router();
 const { auth } = require("../db");
-const { protect } = auth;
+const { protect, adminOnly } = auth;
+const { validateObjectIdParam } = require("../backend/middleware/validationMiddleware");
 const {
   getFavorites,
   getFavoritesByUser,
@@ -8,9 +11,9 @@ const {
   removeFavorite
 } = require("../backend/controllers/favoriteController");
 
-router.get("/", getFavorites);
-router.get("/user/:userId", getFavoritesByUser);
+router.get("/", protect, adminOnly, getFavorites);
+router.get("/user/:userId", protect, validateObjectIdParam("userId"), getFavoritesByUser);
 router.post("/", protect, addFavorite);
-router.delete("/:id", protect, removeFavorite);
+router.delete("/:id", protect, validateObjectIdParam("id"), removeFavorite);
 
 module.exports = router;

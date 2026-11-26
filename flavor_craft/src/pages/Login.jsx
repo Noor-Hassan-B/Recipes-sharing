@@ -10,11 +10,15 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(event) {
     event.preventDefault();
     setMessage("");
+    setIsError(false);
+    setIsLoading(true);
 
     try {
       const res = await loginUser(email, password);
@@ -22,33 +26,20 @@ function Login() {
         localStorage.setItem("token", res.token);
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("user", JSON.stringify(res.user));
-        setMessage("Authentication verified. Redirecting...");
+        setMessage("✅ Authentication verified. Redirecting...");
         const isUserAdmin = res.user.role === "admin";
         setTimeout(() => navigate(isUserAdmin ? "/admin" : "/add-recipes"), 800);
         return;
+      } else {
+        setIsError(true);
+        setMessage("Invalid response from server. Please try again.");
       }
     } catch (err) {
-      console.warn("Backend API login fallback to offline mode:", err.message);
+      setIsError(true);
+      setMessage(err.message || "Invalid email or password. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    const isUserAdmin = email.toLowerCase().includes("admin") || email.toLowerCase().includes("deepam");
-    const derivedName = email.split("@")[0].replace(/[._]/g, " ");
-    const formattedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
-
-    const userObj = {
-      name: isUserAdmin ? `${formattedName || "Admin"} (Master Admin)` : (formattedName || "Chef User"),
-      email: email,
-      role: isUserAdmin ? "admin" : "chef",
-    };
-
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("user", JSON.stringify(userObj));
-
-    setMessage("Authentication verified. Redirecting to system workspace...");
-
-    setTimeout(() => {
-      navigate(isUserAdmin ? "/admin" : "/add-recipes");
-    }, 800);
   }
 
   return (
@@ -85,9 +76,27 @@ function Login() {
               />
             </label>
 
-            <button type="submit">Log In ➔</button>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? "Authenticating..." : "Log In ➔"}
+            </button>
 
-            {message && <div className="auth-message">{message}</div>}
+            {message && (
+              <div
+                className="auth-message"
+                style={{
+                  color: isError ? "#e53e3e" : "#2f855a",
+                  borderColor: isError ? "#feb2b2" : "#9ae6b4",
+                  backgroundColor: isError ? "#fff5f5" : "#f0fff4",
+                  padding: "0.75rem",
+                  borderRadius: "8px",
+                  marginTop: "1rem",
+                  fontSize: "0.9rem",
+                  textAlign: "center"
+                }}
+              >
+                {message}
+              </div>
+            )}
 
             <p className="auth-footer-text">
               Don't have an account? <Link to="/signup">Sign Up</Link>

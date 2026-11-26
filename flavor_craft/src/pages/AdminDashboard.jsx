@@ -176,7 +176,7 @@ function AdminDashboard() {
       if (loggedIn && userRaw) {
         try {
           const user = JSON.parse(userRaw);
-          if (user.role === "admin" || user.email?.toLowerCase().includes("admin") || user.name?.toLowerCase().includes("deepam")) {
+          if (user.role === "admin") {
             setIsAdmin(true);
           } else {
             setIsAdmin(false);

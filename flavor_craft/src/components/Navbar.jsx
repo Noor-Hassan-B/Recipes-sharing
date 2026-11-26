@@ -45,6 +45,7 @@ function Navbar() {
   }, [location]);
 
   function handleLogout() {
+    localStorage.removeItem("token");
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("user");
     setIsLoggedIn(false);
@@ -52,12 +53,7 @@ function Navbar() {
     navigate("/");
   }
 
-  const isAdmin =
-    isLoggedIn &&
-    currentUser &&
-    (currentUser.role === "admin" ||
-      currentUser.email?.toLowerCase().includes("admin") ||
-      currentUser.name?.toLowerCase().includes("deepam"));
+  const isAdmin = isLoggedIn && currentUser && currentUser.role === "admin";
 
   return (
     <header className={`navbar-header ${isScrolled ? "scrolled" : ""}`}>

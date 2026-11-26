@@ -1,10 +1,14 @@
 # Dependencies
 node_modules/
+package-lock.json.bak
 
-# Environment variables
+# Environment variables (strictly ignore all .env files)
 .env
-.env.local
+.env*
 *.env
+**/.env
+**/.env*
+!**/.env.example
 
 # Archives & builds
 *.zip
@@ -19,7 +23,7 @@ npm-debug.log*
 .DS_Store
 .vscode/
 
-# User-uploaded files (keep the default placeholders tracked)
+# User-uploaded files (keep default placeholders tracked)
 backend/uploads/*
 !backend/uploads/default-recipe.jpg
 !backend/uploads/default-avatar.png

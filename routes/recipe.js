@@ -1,6 +1,15 @@
+// routes/recipe.js - Hardened Recipe Routes
+
 const router = require("express").Router();
 const { auth } = require("../db");
 const { protect } = auth;
+const {
+  validateRecipe,
+  validateComment,
+  validateRating,
+  validateObjectIdParam
+} = require("../backend/middleware/validationMiddleware");
+const { recipeCreationLimiter } = require("../backend/middleware/rateLimiter");
 const {
   getRecipes,
   getRecipeById,
@@ -11,27 +20,17 @@ const {
   deleteRecipe
 } = require("../backend/controllers/recipeController");
 
-// Middleware to extract user from token if provided, but pass through if omitted
-const optionalAuth = async (req, res, next) => {
-  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-    try {
-      const token = req.headers.authorization.split(" ")[1];
-      const decoded = auth.verifyToken(token);
-      const { User } = require("../db");
-      req.user = await User.findById(decoded.id).select("-password");
-    } catch (e) {
-      // ignore invalid token and continue
-    }
-  }
-  next();
-};
-
+// Public reading routes
 router.get("/", getRecipes);
-router.get("/:id", getRecipeById);
-router.post("/", optionalAuth, createRecipe);
-router.post("/:id/comments", optionalAuth, addRecipeComment);
-router.post("/:id/ratings", optionalAuth, addRecipeRating);
-router.put("/:id", protect, updateRecipe);
-router.delete("/:id", protect, deleteRecipe);
+router.get("/:id", validateObjectIdParam("id"), getRecipeById);
+
+// Authenticated creation and modification routes
+router.post("/", protect, recipeCreationLimiter, validateRecipe, createRecipe);
+router.put("/:id", protect, validateObjectIdParam("id"), validateRecipe, updateRecipe);
+router.delete("/:id", protect, validateObjectIdParam("id"), deleteRecipe);
+
+// Authenticated engagement sub-routes
+router.post("/:id/comments", protect, validateObjectIdParam("id"), validateComment, addRecipeComment);
+router.post("/:id/ratings", protect, validateObjectIdParam("id"), validateRating, addRecipeRating);
 
 module.exports = router;

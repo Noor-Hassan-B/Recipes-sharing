@@ -1,6 +1,5 @@
 // src/services/api.js
-// Member 2 (UI) API Service Layer
-// Communicates with Member 3 & 5's Backend API with automatic mock fallbacks
+// Hardened API Service Layer with Token Management & File Upload Support
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -9,25 +8,38 @@ async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('token');
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeader,
-        ...options.headers,
-      },
-      ...options,
-    });
+  const headers = {
+    ...authHeader,
+    ...options.headers,
+  };
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.warn(`[API Fallback] Request to ${endpoint} failed (${error.message}). Using local mock handler.`);
-    throw error;
+  // If body is NOT FormData, set JSON Content-Type
+  if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
   }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  let data;
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    data = await response.text();
+  }
+
+  if (!response.ok) {
+    const errorMsg = (data && data.message) ? data.message : `HTTP Error ${response.status}: ${response.statusText}`;
+    const err = new Error(errorMsg);
+    err.status = response.status;
+    err.data = data;
+    throw err;
+  }
+
+  return data;
 }
 
 /* ==========================================================================
@@ -35,16 +47,12 @@ async function apiFetch(endpoint, options = {}) {
    ========================================================================== */
 
 export async function fetchRecipes(category = '', search = '') {
-  try {
-    const params = new URLSearchParams();
-    if (category && category !== 'All') params.append('category', category);
-    if (search) params.append('search', search);
+  const params = new URLSearchParams();
+  if (category && category !== 'All') params.append('category', category);
+  if (search) params.append('search', search);
 
-    return await apiFetch(`/recipes?${params.toString()}`);
-  } catch {
-    // Fallback returns empty array or null so UI handles gracefully
-    return null;
-  }
+  const query = params.toString() ? `?${params.toString()}` : '';
+  return await apiFetch(`/recipes${query}`);
 }
 
 export async function fetchRecipeById(id) {
@@ -55,6 +63,33 @@ export async function createRecipe(recipeData) {
   return await apiFetch('/recipes', {
     method: 'POST',
     body: JSON.stringify(recipeData),
+  });
+}
+
+export async function updateRecipe(id, recipeData) {
+  return await apiFetch(`/recipes/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(recipeData),
+  });
+}
+
+export async function deleteRecipe(id) {
+  return await apiFetch(`/recipes/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+/* ==========================================================================
+   Image Upload Endpoint (Multipart)
+   ========================================================================== */
+
+export async function uploadImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  return await apiFetch('/upload', {
+    method: 'POST',
+    body: formData,
   });
 }
 
@@ -76,12 +111,12 @@ export async function registerUser(userData) {
   });
 }
 
+export async function fetchCurrentUser() {
+  return await apiFetch('/users/me');
+}
+
 export async function fetchUsers() {
-  try {
-    return await apiFetch('/users');
-  } catch {
-    return null;
-  }
+  return await apiFetch('/users');
 }
 
 /* ==========================================================================
@@ -90,6 +125,13 @@ export async function fetchUsers() {
 
 export async function fetchCategories() {
   return await apiFetch('/categories');
+}
+
+export async function createCategory(name) {
+  return await apiFetch('/categories', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
 }
 
 /* ==========================================================================

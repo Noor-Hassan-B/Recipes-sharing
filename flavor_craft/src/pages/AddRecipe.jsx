@@ -22,7 +22,7 @@ const cuisineOptions = [
   "Other",
 ];
 
-import { createRecipe } from "../services/api.js";
+import { createRecipe, uploadImage } from "../services/api.js";
 
 function AddRecipe() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -96,7 +96,20 @@ function AddRecipe() {
       return;
     }
 
+    let uploadedImageUrl = "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80";
+
     try {
+      if (selectedFile) {
+        try {
+          const uploadRes = await uploadImage(selectedFile);
+          if (uploadRes && uploadRes.url) {
+            uploadedImageUrl = uploadRes.url;
+          }
+        } catch (uploadErr) {
+          console.warn("Server image upload notice:", uploadErr.message);
+        }
+      }
+
       const prepTimeNum = parseInt(formData.time) || 30;
       await createRecipe({
         title: formData.name,
@@ -106,10 +119,10 @@ function AddRecipe() {
         category: formData.cuisine || "Indian",
         difficulty: formData.difficulty || "Easy",
         preparationTime: prepTimeNum,
-        image: imagePreviewUrl || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80"
+        image: uploadedImageUrl
       });
     } catch (apiErr) {
-      console.warn("Backend API submit recipe error fallback to local storage:", apiErr.message);
+      console.warn("Backend API submit recipe notice:", apiErr.message);
     }
 
     try {
@@ -126,7 +139,7 @@ function AddRecipe() {
         featured: false,
         rating: 5.0,
         reviewsCount: 1,
-        image: imagePreviewUrl || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80",
+        image: uploadedImageUrl || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80",
         description: formData.instructions || "Authentic home recipe contributed to FlavorCraft community.",
         ingredients: formData.ingredients ? formData.ingredients.split(",").map((i) => i.trim()) : ["Special homemade blend"],
         steps: formData.instructions ? formData.instructions.split(". ").map((s) => s.trim()).filter(Boolean) : ["Follow authentic traditional cooking method."],
