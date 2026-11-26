@@ -1,6 +1,6 @@
 # 🍳 FlavorCraft - Secure Enterprise MERN Recipe Sharing Platform
 
-[![Security Audit](https://img.shields.io/badge/Security%20Audit-16%2F16%20PASSED-brightgreen.svg)](#cybersecurity-hardening--owasp-top-10-mitigations)
+[![Security Audit](https://img.shields.io/badge/Security%20Audit-24%2F24%20PASSED-brightgreen.svg)](#cybersecurity-hardening--owasp-top-10-mitigations)
 [![OWASP Hardened](https://img.shields.io/badge/OWASP-Top%2010%20Hardened-blue.svg)](#cybersecurity-hardening--owasp-top-10-mitigations)
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B%20%7C%20v20%2B-green.svg)](https://nodejs.org)
 [![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg)](https://expressjs.com)
@@ -336,8 +336,20 @@ npm test
 --- 7. ReDoS & Regex Injection Protection ---
   ✅ PASS: ReDoS payload safely handled without crashing (200)
 
+--- 8. NoSQL Injection Defense ---
+  ✅ PASS: NoSQL operator injection in auth rejected (400 Bad Request)
+
+--- 9. Cross-Site Scripting (XSS) Sanitization ---
+  ✅ PASS: Recipe created with sanitized content (201)
+  ✅ PASS: Raw <script> tags escaped in title
+  ✅ PASS: Raw <img> onerror tags escaped in description
+  ✅ PASS: Raw <svg> tags escaped in ingredients
+  ✅ PASS: javascript: pseudo-protocol in image URL stripped
+  ✅ PASS: Comment created with sanitized text (201)
+  ✅ PASS: Raw <script> tag escaped in comment
+
 ==================================================
-Cybersecurity Audit Summary: 16 PASSED, 0 FAILED
+Cybersecurity Audit Summary: 24 PASSED, 0 FAILED
 ==================================================
 ```
 

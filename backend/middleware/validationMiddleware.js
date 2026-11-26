@@ -106,6 +106,7 @@ const validateRecipe = (req, res, next) => {
         message: "Recipe title must be between 2 and 120 characters."
       });
     }
+    req.body.title = validator.escape(title.trim());
   }
 
   if (isCreate || description !== undefined) {
@@ -115,6 +116,7 @@ const validateRecipe = (req, res, next) => {
         message: "Recipe description must be at least 5 characters long."
       });
     }
+    req.body.description = validator.escape(description.trim());
   }
 
   if (isCreate || ingredients !== undefined) {
@@ -123,6 +125,11 @@ const validateRecipe = (req, res, next) => {
         success: false,
         message: "Please provide recipe ingredients."
       });
+    }
+    if (Array.isArray(ingredients)) {
+      req.body.ingredients = ingredients.map((i) => validator.escape(String(i).trim())).filter(Boolean);
+    } else if (typeof ingredients === "string") {
+      req.body.ingredients = ingredients.split(",").map((i) => validator.escape(i.trim())).filter(Boolean);
     }
   }
 
@@ -133,6 +140,11 @@ const validateRecipe = (req, res, next) => {
         message: "Cooking instructions must be at least 5 characters long."
       });
     }
+    req.body.instructions = validator.escape(instructions.trim());
+  }
+
+  if (category !== undefined) {
+    req.body.category = validator.escape(String(category).trim());
   }
 
   if (difficulty !== undefined) {

